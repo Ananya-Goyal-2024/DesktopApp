@@ -1,3 +1,21 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+build/
+
+# Logs
 *.log
+
+# Electron runtime/app data
+data1/
+data2/
+data3/
+data4/
+
+# macOS
+.DS_Store
+
+# Environment variables
+.env
