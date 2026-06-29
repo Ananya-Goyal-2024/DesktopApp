@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self'; img-src 'self' data:; script-src 'self';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>P2P Office</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===================== LOBBY ===================== -->
+  <main id="lobby" class="lobby">
+    <div class="lobby-card">
+      <div class="mark" aria-hidden="true">
+        <span class="node n1"></span><span class="node n2"></span>
+        <span class="node n3"></span><span class="link l1"></span><span class="link l2"></span>
+      </div>
+      <h1>P2P Office</h1>
+      <p class="lede">A private place to talk and share files with your team. No server in the middle &mdash; messages and files move directly between your computers.</p>
+
+      <label class="field">
+        <span>Your name</span>
+        <input id="name-input" type="text" maxlength="48" placeholder="e.g. Sara from Design" autocomplete="off" />
+      </label>
+
+      <div class="lobby-actions">
+        <button id="create-btn" class="btn btn-primary">Create a room</button>
+        <div class="or"><span>or join one</span></div>
+        <div class="join-row">
+          <input id="join-key" type="text" placeholder="Paste a room ID" autocomplete="off" spellcheck="false" />
+          <button id="join-btn" class="btn">Join</button>
+        </div>
+      </div>
+
+      <p id="lobby-error" class="error" hidden></p>
+    </div>
+  </main>
+
+  <!-- ===================== ROOM ===================== -->
+  <div id="room" class="app" hidden>
+    <aside class="sidebar">
+      <header class="side-head">
+        <div class="presence" id="presence">
+          <span class="dot"></span><span id="conn-count">0</span> connected
+        </div>
+        <h2>This room</h2>
+      </header>
+
+      <section class="panel">
+        <div class="panel-label">Room ID <span class="hint">share to invite</span></div>
+        <div class="copybox">
+          <code id="room-key" class="mono"></code>
+          <button id="copy-room" class="icon-btn" title="Copy room ID">Copy</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-label">Your writer key <span class="hint">send to an admin to post</span></div>
+        <div class="copybox">
+          <code id="writer-key" class="mono"></code>
+          <button id="copy-writer" class="icon-btn" title="Copy your writer key">Copy</button>
+        </div>
+      </section>
+
+      <section class="panel grow">
+        <div class="panel-label">Members</div>
+        <ul id="members" class="members"></ul>
+      </section>
+
+      <section class="panel">
+        <div class="panel-label">Add a member</div>
+        <p class="micro">Paste the writer key they sent you. Only current members can add others.</p>
+        <div class="add-row">
+          <input id="add-key" type="text" placeholder="Their writer key" autocomplete="off" spellcheck="false" />
+          <button id="add-btn" class="btn btn-small">Add</button>
+        </div>
+      </section>
+    </aside>
+
+    <main class="content">
+      <div id="readonly-banner" class="banner" hidden>
+        You can read this room but cannot post yet. Send your writer key (left panel) to a member and ask them to add you.
+      </div>
+
+      <div id="timeline" class="timeline" aria-live="polite"></div>
+
+      <form id="composer" class="composer">
+        <button type="button" id="attach-btn" class="icon-btn attach" title="Share a file">Share file</button>
+        <input id="msg-input" type="text" placeholder="Write a message&hellip;" autocomplete="off" />
+        <button type="submit" id="send-btn" class="btn btn-primary">Send</button>
+      </form>
+      <p id="room-error" class="error inline" hidden></p>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
