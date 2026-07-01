@@ -39,8 +39,9 @@ function createWindow () {
 }
 
 app.whenReady().then(async () => {
+  // The node stays locked until the user signs up / logs in; only then does it
+  // open the store, swarm and rooms. See P2PNode.signup / login / _start.
   node = new P2PNode(path.join(app.getPath('userData'), 'p2p'))
-  await node.init()
   node.on('state', (state) => {
     if (win && !win.isDestroyed()) win.webContents.send('state:update', state)
   })
@@ -70,10 +71,23 @@ function handle (channel, fn) {
   })
 }
 
-handle('room:create', (name) => node.createRoom(name))
-handle('room:join', ({ key, name }) => node.joinRoom(key, name))
+handle('auth:state', () => node.authState())
+handle('auth:signup', ({ name, password }) => node.signup(name, password))
+handle('auth:login', ({ password }) => node.login(password))
+handle('auth:reset', () => node.resetIdentity())
+
+handle('room:create', (label) => node.createRoom(label))
+handle('room:join', ({ key, label }) => node.joinRoom(key, label))
+handle('room:switch', (id) => node.switchRoom(id))
+handle('room:leave', (id) => node.leaveRoom(id))
+handle('invite:create', (id) => node.createInvite(id))
+handle('invite:redeem', ({ code, label }) => node.redeemInvite(code, label))
 handle('msg:send', (text) => node.sendMessage(text))
-handle('member:add', ({ key, name }) => node.addMember(key, name))
+handle('contact:add', ({ key, name }) => node.addContact(key, name))
+handle('contact:remove', (key) => node.removeContact(key))
+handle('contact:invite', (key) => node.inviteContact(key))
+handle('request:admit', (writer) => node.admitRequest(writer))
+handle('request:ignore', (writer) => node.ignoreRequest(writer))
 handle('state:get', () => node.getState())
 
 handle('file:send', async () => {

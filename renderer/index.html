@@ -9,8 +9,60 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- ===================== AUTH (unlock gate) ===================== -->
+  <main id="auth" class="lobby">
+    <div class="lobby-card">
+      <div class="mark" aria-hidden="true">
+        <span class="node n1"></span><span class="node n2"></span>
+        <span class="node n3"></span><span class="link l1"></span><span class="link l2"></span>
+      </div>
+      <h1>P2P Office</h1>
+
+      <!-- Sign up (first run on this device) -->
+      <div id="signup-form" hidden>
+        <p class="lede">Create your identity on this device. Your keys are generated here and never leave this computer &mdash; there is no account server.</p>
+        <label class="field">
+          <span>Display name</span>
+          <input id="su-name" type="text" maxlength="48" placeholder="e.g. Sara from Design" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="su-pass" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+        </label>
+        <label class="field">
+          <span>Confirm password</span>
+          <input id="su-pass2" type="password" placeholder="Repeat your password" autocomplete="new-password" />
+        </label>
+        <button id="su-btn" class="btn btn-primary">Create identity</button>
+        <p class="warn">There is no password reset. Your password encrypts your identity on this device only — if you lose it, no server can recover your identity and it is gone for good.</p>
+      </div>
+
+      <!-- Log in (identity already exists on this device) -->
+      <div id="login-form" hidden>
+        <p class="lede">Welcome back, <span id="login-name" class="login-name"></span>. Enter your password to unlock your identity on this device.</p>
+        <label class="field">
+          <span>Password</span>
+          <input id="li-pass" type="password" placeholder="Your password" autocomplete="current-password" />
+        </label>
+        <button id="li-btn" class="btn btn-primary">Unlock</button>
+        <p class="warn">There is no password reset. If you have lost your password, your identity cannot be recovered — no server holds a copy.</p>
+
+        <button id="reset-btn" class="linkbtn">Forgot your password? Start over with a new identity</button>
+        <div id="reset-confirm" hidden>
+          <p class="warn danger-warn">This permanently erases this identity and all of its rooms <strong>on this device</strong>. It cannot be undone — there is no recovery. Rooms you share with others stay on their devices, but you will lose access from here and have to be re-added. You will then create a brand-new identity.</p>
+          <div class="reset-actions">
+            <button id="reset-cancel" class="btn btn-small">Cancel</button>
+            <button id="reset-confirm-btn" class="btn btn-small btn-danger">Erase and start over</button>
+          </div>
+        </div>
+      </div>
+
+      <p id="auth-error" class="error" hidden></p>
+    </div>
+  </main>
+
   <!-- ===================== LOBBY ===================== -->
-  <main id="lobby" class="lobby">
+  <main id="lobby" class="lobby" hidden>
     <div class="lobby-card">
       <div class="mark" aria-hidden="true">
         <span class="node n1"></span><span class="node n2"></span>
@@ -20,8 +72,8 @@
       <p class="lede">A private place to talk and share files with your team. No server in the middle &mdash; messages and files move directly between your computers.</p>
 
       <label class="field">
-        <span>Your name</span>
-        <input id="name-input" type="text" maxlength="48" placeholder="e.g. Sara from Design" autocomplete="off" />
+        <span>Room name <span class="hint">when creating, everyone who joins sees this name</span></span>
+        <input id="name-input" type="text" maxlength="48" placeholder="e.g. Design Team" autocomplete="off" />
       </label>
 
       <div class="lobby-actions">
@@ -31,15 +83,27 @@
           <input id="join-key" type="text" placeholder="Paste a room ID" autocomplete="off" spellcheck="false" />
           <button id="join-btn" class="btn">Join</button>
         </div>
+        <div class="or"><span>or use an invite code</span></div>
+        <div class="join-row">
+          <input id="invite-input" type="text" placeholder="Paste an invite code" autocomplete="off" spellcheck="false" />
+          <button id="use-invite-btn" class="btn">Use code</button>
+        </div>
       </div>
 
       <p id="lobby-error" class="error" hidden></p>
+      <button id="lobby-back" class="btn lobby-back" hidden>Back to rooms</button>
     </div>
   </main>
 
   <!-- ===================== ROOM ===================== -->
   <div id="room" class="app" hidden>
     <aside class="sidebar">
+      <section class="panel rooms-panel">
+        <div class="panel-label">Rooms</div>
+        <ul id="room-list" class="room-list"></ul>
+        <button id="add-room-btn" class="btn btn-small add-room">＋ New / Join room</button>
+      </section>
+
       <header class="side-head">
         <div class="presence" id="presence">
           <span class="dot"></span><span id="conn-count">0</span> connected
@@ -48,19 +112,26 @@
       </header>
 
       <section class="panel">
-        <div class="panel-label">Room ID <span class="hint">share to invite</span></div>
+        <div class="panel-label">Invite code <span class="hint">one-time, expiring</span></div>
+        <button id="make-invite-btn" class="btn btn-small">Create invite code</button>
+        <div id="invite-box" class="copybox" hidden>
+          <code id="invite-code" class="mono"></code>
+          <button id="copy-invite" class="icon-btn" title="Copy invite code">Copy</button>
+        </div>
+        <p id="invite-note" class="micro" hidden></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-label">Room ID <span class="hint">advanced</span></div>
         <div class="copybox">
           <code id="room-key" class="mono"></code>
           <button id="copy-room" class="icon-btn" title="Copy room ID">Copy</button>
         </div>
       </section>
 
-      <section class="panel">
-        <div class="panel-label">Your writer key <span class="hint">send to an admin to post</span></div>
-        <div class="copybox">
-          <code id="writer-key" class="mono"></code>
-          <button id="copy-writer" class="icon-btn" title="Copy your writer key">Copy</button>
-        </div>
+      <section id="requests-panel" class="panel" hidden>
+        <div class="panel-label">Requests to join</div>
+        <ul id="requests" class="requests"></ul>
       </section>
 
       <section class="panel grow">
@@ -68,19 +139,21 @@
         <ul id="members" class="members"></ul>
       </section>
 
-      <section class="panel">
-        <div class="panel-label">Add a member</div>
-        <p class="micro">Paste the writer key they sent you. Only current members can add others.</p>
-        <div class="add-row">
-          <input id="add-key" type="text" placeholder="Their writer key" autocomplete="off" spellcheck="false" />
-          <button id="add-btn" class="btn btn-small">Add</button>
-        </div>
+      <section class="panel contacts-panel">
+        <div class="panel-label">Contacts <span class="hint">on this device</span></div>
+        <ul id="contacts" class="contacts"></ul>
+        <p id="contacts-empty" class="micro">No saved contacts yet. Save people from the members list after you connect with them.</p>
       </section>
     </aside>
 
     <main class="content">
+      <header class="content-head">
+        <h2 id="active-room-name" class="room-title"></h2>
+        <button id="leave-btn" class="btn btn-small">Leave room</button>
+      </header>
+
       <div id="readonly-banner" class="banner" hidden>
-        You can read this room but cannot post yet. Send your writer key (left panel) to a member and ask them to add you.
+        You can read this room but cannot post yet. A member has been asked to admit you — once they do, you can chat and share files. No keys to copy.
       </div>
 
       <div id="timeline" class="timeline" aria-live="polite"></div>

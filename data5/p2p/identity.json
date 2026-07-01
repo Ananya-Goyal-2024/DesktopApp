@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "Anirudh",
+  "kdf": {
+    "salt": "QOqjZrVOkKPvBFfUFQ3cMw==",
+    "opslimit": 3,
+    "memlimit": 268435456
+  },
+  "nonce": "+vYWHLNk9BCMS4CKKb+KRXEGy+jhmsc4",
+  "cipher": "ITPWa9/KUeJZooPO8cuJqY0KptOXLOpLPiaIxSZodvqa2jGiwvWUBysJ0yPFl7lR"
+}
