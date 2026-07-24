@@ -8,14 +8,12 @@ build/
 # Logs
 *.log
 
-# Electron runtime/app data
-data1/
-data2/
-data3/
-data4/
+# Electron runtime/app data (created when the app runs; never commit)
+data*/
 
 # macOS
 .DS_Store
+**/.DS_Store
 
 # Environment variables
 .env
